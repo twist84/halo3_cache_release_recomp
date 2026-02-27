@@ -4,6 +4,7 @@
 #include "generated/halo3_cache_release_init.h"
 
 #include <rex/rex_app.h>
+#include <rex/ppc/function.h>
 
 #pragma endregion
 
@@ -35,6 +36,19 @@ PPC_STUB(roundevenf);
 
 #pragma endregion
 
+#pragma region gane_stubs
+
+PPC_STUB(rex_hs_runtime_update); // bad switch in `c_havok_component::build_physics_model_component`
+
+#pragma endregion
+
+#pragma region game_externs
+
+PPC_EXTERN_IMPORT(__imp__rex_cache_files_copy_fonts);
+PPC_EXTERN_IMPORT(__imp__rex_c_window_manager_handle_global_controller_event);
+
+#pragma endregion
+
 /*
 rex_c_platform_source_datum_queue_sound
 
@@ -45,11 +59,10 @@ rex_c_platform_source_datum_queue_sound
 
 bool cache_files_copy_fonts(void)
 {
-	return true; // skip over dirty disk
+	bool result = rex::GuestToHostFunction<bool>(__imp__rex_cache_files_copy_fonts);
+	return result; // skip over dirty disk
 }
 PPC_HOOK(rex_cache_files_copy_fonts, cache_files_copy_fonts);
-
-PPC_STUB(rex_hs_runtime_update); // bad switch in `c_havok_component::build_physics_model_component`
 
 enum e_controller_index
 {
@@ -263,13 +276,17 @@ public:
 };
 static_assert(sizeof(c_window_manager) == 0x118);
 
-void user_interface_controller_input_event_submit(const s_event_record* event)
+c_window_manager* window_manager_get()
 {
-	c_window_manager* window_manager = rex::Runtime::instance()->memory()->TranslateVirtual<c_window_manager*>(0x8298CBC0);
-	window_manager->handle_global_controller_event(event);
+	c_window_manager* result = rex::Runtime::instance()->memory()->TranslateVirtual<c_window_manager*>(0x8298CBC0);
+	return result;
 }
 
-#include <rex/ppc/function.h>
+void user_interface_controller_input_event_submit(const s_event_record* event)
+{
+	c_window_manager* window_manager = window_manager_get();
+	window_manager->handle_global_controller_event(event);
+}
 
 void c_window_manager::handle_global_controller_event(const s_event_record* event)
 {
@@ -286,11 +303,8 @@ void c_window_manager::handle_global_controller_event(const s_event_record* even
 		controller_component_name,
 		value);
 
-#if 0 // broken?
-	uint32_t _this = rex::Runtime::instance()->memory()->HostToGuestVirtual(this);
-	uint32_t _event = rex::Runtime::instance()->memory()->HostToGuestVirtual(event);
-	rex::GuestToHostFunction<void>(rex_c_window_manager_handle_global_controller_event, _this, _event);
-#endif
+	// broken but no crash, keeping the call
+	rex::GuestToHostFunction<void>(__imp__rex_c_window_manager_handle_global_controller_event, this, event);
 }
 
 void event_manager_button_pressed(e_controller_index controller_index, uint8_t button)
