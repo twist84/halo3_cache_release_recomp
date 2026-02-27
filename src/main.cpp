@@ -25,25 +25,81 @@ public:
 			 PPC_IMAGE_SIZE, PPCFuncMappings }));
 	}
 
-protected:
-	virtual void OnPostSetup() override
+private:
+	enum class InitializationStage
 	{
-		rex::Runtime* _runtime = rex::ReXApp::ReXApp::runtime();
+		PreSetup,
+		PostSetup
+	};
 
-#if 0
-		// Load XEX image
-		auto status = _runtime->LoadXexImage("game:\\halo3_cache_release.xex");
-		if (XFAILED(status))
-		{
-			REXLOG_ERROR("Failed to load XEX: {:08X}", status);
-			return;
-		}
+	void SetupXexImageToLoad(InitializationStage state);
+	void SetupCacheAndXStorage(InitializationStage state);
+
+protected:
+	virtual void OnPreSetup(rex::RuntimeConfig& config) override;
+	virtual void OnPostSetup() override;
+};
+
+REX_DEFINE_APP(halo3_cache_release, Halo3CacheReleaseApp::Create)
+
+void Halo3CacheReleaseApp::OnPreSetup(rex::RuntimeConfig& config)
+{
+	SetupXexImageToLoad(InitializationStage::PreSetup);
+}
+
+void Halo3CacheReleaseApp::OnPostSetup()
+{
+	SetupXexImageToLoad(InitializationStage::PostSetup);
+	SetupCacheAndXStorage(InitializationStage::PostSetup);
+}
+
+void Halo3CacheReleaseApp::SetupXexImageToLoad(InitializationStage state)
+{
+#if 0 // This could be a whole lot simpler that what I'm doing here
+	// Load XEX image
+	auto status = _runtime->LoadXexImage("game:\\halo3_cache_release.xex");
+	if (XFAILED(status))
+	{
+		REXLOG_ERROR("Failed to load XEX: {:08X}", status);
+		return;
+	}
 #endif
 
-		rex::filesystem::VirtualFileSystem* fs = _runtime->file_system();
+	rex::Runtime* _runtime = rex::ReXApp::ReXApp::runtime();
 
+	auto default_xex = _runtime->game_data_root() / "default.xex";
+	auto game_xex = _runtime->game_data_root() / "halo3_cache_release.xex";
+
+	switch (state)
+	{
+	case InitializationStage::PreSetup:
+		if (std::filesystem::exists(default_xex))
+		{
+			std::filesystem::remove(default_xex);
+		}
+		std::filesystem::copy_file(game_xex, default_xex);
+		break;
+	case InitializationStage::PostSetup:
+		std::filesystem::remove(default_xex);
+		break;
+	default:
+		break;
+	}
+}
+
+void Halo3CacheReleaseApp::SetupCacheAndXStorage(InitializationStage state)
+{
+	rex::Runtime* _runtime = rex::ReXApp::ReXApp::runtime();
+	rex::filesystem::VirtualFileSystem* fs = _runtime->file_system();
+
+	switch (state)
+	{
+	case InitializationStage::PreSetup:
+		break;
+	case InitializationStage::PostSetup:
+	{
 		auto cache_device = std::make_unique<rex::filesystem::HostPathDevice>(
-			"\\CACHE", _runtime->game_data_root() / "cache", false);
+			"\\CACHE", _runtime->game_data_root(), false);
 		if (!cache_device->Initialize())
 		{
 			REXFS_ERROR("Unable to scan cache path");
@@ -79,7 +135,10 @@ protected:
 					"\\XSTORAGE");
 			}
 		}
-	}
-};
 
-REX_DEFINE_APP(halo3_cache_release, Halo3CacheReleaseApp::Create)
+	}
+	break;
+	default:
+		break;
+	}
+}
