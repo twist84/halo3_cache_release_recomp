@@ -28,6 +28,7 @@ public:
 protected:
 	virtual void OnLoadXexImage(std::string& xex_image) override;
 	virtual void OnPostSetup() override;
+	virtual void OnConfigurePaths(rex::PathConfig& paths) override;
 };
 
 REX_DEFINE_APP(halo3_cache_release, Halo3CacheReleaseApp::Create)
@@ -79,4 +80,11 @@ void Halo3CacheReleaseApp::OnPostSetup()
 				"\\XSTORAGE");
 		}
 	}
+}
+
+void Halo3CacheReleaseApp::OnConfigurePaths(rex::PathConfig& paths)
+{
+	paths.game_data_root = ".";
+	paths.user_data_root = ".";
+	paths.update_data_root = ".";
 }
