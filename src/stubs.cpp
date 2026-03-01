@@ -48,13 +48,46 @@ PPC_STUB_RETURN(rex_chud_text_widget_compute_geometry, false)
 
 #pragma endregion
 
-#pragma region fixups
+#pragma region QoL
 
 void post_setup_callback()
 {
 	c_screen_postprocess::s_settings& x_settings_internal = *rex::Runtime::instance()->memory()->TranslateVirtual<c_screen_postprocess::s_settings*>(0x826C7920);
 	x_settings_internal.m_postprocess = false;
 }
+
+#pragma endregion
+
+#pragma region ppc_hooks
+
+REXCVAR_DEFINE_STRING(username, "", "User", "");
+
+namespace rex::kernel::xam
+{
+	extern ppc_u32_result_t XamUserGetName_entry(ppc_u32_t user_index, ppc_pchar_t buffer,
+		ppc_u32_t buffer_len);
+}
+
+ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
+	ppc_u32_t buffer_len)
+{
+	ppc_u32_result_t result;
+
+	auto username = REXCVAR_GET(username);
+	if (username[0] != 0)
+	{
+		rex::string::util_copy_truncating(buffer, username, std::min(buffer_len.value(), uint32_t(16)));
+
+		// X_E_SUCCESS
+		result = 0U;
+	}
+	else
+	{
+		result = rex::kernel::xam::XamUserGetName_entry(user_index, buffer, buffer_len);
+	}
+	return result;
+}
+PPC_HOOK(rex_XUserGetName, XUserGetName);
 
 #pragma endregion
 
