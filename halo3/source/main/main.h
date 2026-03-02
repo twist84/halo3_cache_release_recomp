@@ -5,12 +5,43 @@
 /* ---------- headers */
 
 #include "game/game_options.h"
+#include "cseries/cseries_macros.h"
 
 #include <rex/types.h>
 
 /* ---------- constants */
 
+#define WAIT_FOR_RENDER_THREAD() c_wait_for_render_thread CONCATX(__render_thread_lock_, __LINE__)(__FILE__, __LINE__)
+
+enum e_map_memory_configuration
+{
+	k_map_memory_configuration_count = 4
+};
+
+enum
+{
+	_game_loaded_status_none = 0,
+	_game_loaded_status_map_loading,
+	_game_loaded_status_map_loaded,
+	_game_loaded_status_map_loaded_failure,
+	_game_loaded_status_map_unloading,
+	_game_loaded_status_pregame,
+
+	k_game_loaded_status_count,
+};
+
 /* ---------- definitions */
+
+typedef unsigned long unlock_token;
+class c_wait_for_render_thread
+{
+public:
+	c_wait_for_render_thread(char const* file, long line);
+	~c_wait_for_render_thread(void);
+private:
+	unlock_token m_token;
+};
+static_assert(sizeof(c_wait_for_render_thread) == 4);
 
 struct _main_globals
 {
@@ -44,11 +75,6 @@ static_assert(sizeof(_main_globals) == 0x64);
 
 // main game
 
-enum e_map_memory_configuration
-{
-	k_map_memory_configuration_count = 4
-};
-
 struct s_main_game_globals
 {
 	rex::be<e_map_memory_configuration> map_memory_configuration; // 0x0
@@ -69,6 +95,13 @@ static_assert(sizeof(s_main_game_globals) == 0xD418);
 /* ---------- globals */
 
 /* ---------- public code */
+
+extern unlock_token _internal_halt_render_thread_and_lock_resources(char const* file, long line);
+extern void unlock_resources_and_resume_render_thread(unlock_token token);
+
+// main game
+
+extern void main_game_unload_and_prepare_for_next_game(game_options const* options);
 
 /* ---------- private code */
 

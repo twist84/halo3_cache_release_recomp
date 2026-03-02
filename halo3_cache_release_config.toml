@@ -106,14 +106,15 @@ labels = [
 [[switch_tables]]
 address = 0x82175C4C
 register = 11
-labels = [
-    0x82175CB4,
-    0x82175CCC,
-    0x82175C68,
-    0x82175CCC,
-    0x82175C68,
-    0x82175C9C
-    ]
+labels = [0x82175CB4]
+#labels = [
+#    0x82175CB4,
+#    0x82175CCC,
+#    0x82175C68,
+#    0x82175CCC,
+#    0x82175C68,
+#    0x82175C9C
+#    ]
 
 #[[switch_tables]]
 #address = 0x8240964C    # Address of the bctr instruction
@@ -134,10 +135,6 @@ labels = [0x821E7834]
 #    ]
 
 [functions]
-0x82175C68 = { name = "loc_82175C68" }
-0x82175C9C = { name = "loc_82175C9C" }
-0x82175CA8 = { name = "loc_82175CA8" }
-
 0x820A0000 = { name = "rex_shell_initialize", size = 0x128 }
 0x820A0128 = { name = "rex_shell_build_string_is_compatible", size = 0x68 }
 0x820A0190 = { name = "rex_main", size = 0x190 }

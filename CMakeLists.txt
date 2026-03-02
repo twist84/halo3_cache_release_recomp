@@ -40,6 +40,14 @@ else()
     add_executable(halo3_cache_release ${HALO3_CACHE_RELEASE_SOURCES})
 endif()
 
+file(GLOB_RECURSE HALO3_GAME_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/halo3/source/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/halo3/source/*.c"
+)
+
+target_sources(halo3_cache_release PRIVATE
+    ${HALO3_GAME_SOURCES}
+)
 target_include_directories(halo3_cache_release PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/halo3/source

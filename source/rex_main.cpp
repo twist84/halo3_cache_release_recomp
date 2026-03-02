@@ -13,7 +13,7 @@
 #include <rex/filesystem/vfs.h>
 #include <rex/graphics/flags.h>
 
-extern void post_setup_callback();
+extern void post_setup_callback(void);
 
 class Halo3CacheReleaseApp : public rex::ReXApp
 {
@@ -95,7 +95,7 @@ void Halo3CacheReleaseApp::OnPostSetup()
 
 void Halo3CacheReleaseApp::OnConfigurePaths(rex::PathConfig& paths)
 {
-	paths.game_data_root = ".";
-	paths.user_data_root = ".";
-	paths.update_data_root = ".";
+	//paths.game_data_root = ".";
+	//paths.user_data_root = ".";
+	//paths.update_data_root = ".";
 }

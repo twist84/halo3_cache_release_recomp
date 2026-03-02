@@ -1,20 +1,14 @@
 #pragma region includes
 
-#include "generated/halo3_cache_release_config.h"
-#include "generated/halo3_cache_release_init.h"
-
+#include "cseries/cseries_macros.h"
 #include "interface/gui_string_ids.h"
 #include "main/main.h"
 #include "render/screen_postprocess.h"
 #include "tag_files/string_id_globals.h"
 
-#include <rex/rex_app.h>
-#include <rex/ppc/function.h>
+#include "rex_macros.h"
 
 #pragma endregion
-
-#define REFERENCE_DECLARE(address, type, name) \
-	type& name = *rex::Runtime::instance()->memory()->TranslateVirtual<type*>(address);
 
 #pragma region xbox_stubs
 
@@ -54,12 +48,12 @@ PPC_STUB_RETURN(rex_chud_text_widget_compute_geometry, false)
 
 #pragma region QoL
 
-void post_setup_callback()
+void post_setup_callback(void)
 {
-	REFERENCE_DECLARE(0x826C7920, c_screen_postprocess::s_settings, x_settings_internal);
+	REX_DATA_REFERENCE(0x826C7920, c_screen_postprocess::s_settings, x_settings_internal);
 	x_settings_internal.m_postprocess = false;
 
-	REFERENCE_DECLARE(0x82881954, bool, disable_main_loop_throttle);
+	REX_DATA_REFERENCE(0x82881954, bool, disable_main_loop_throttle);
 	disable_main_loop_throttle = true;
 }
 
@@ -67,7 +61,7 @@ void post_setup_callback()
 
 #pragma region ppc_hooks
 
-REXCVAR_DEFINE_STRING(username, "", "User", "");
+REXCVAR_DEFINE_STRING(username, "", "RexUser", "");
 
 namespace rex::kernel::xam
 {
@@ -81,7 +75,7 @@ ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
 	ppc_u32_result_t result;
 
 	auto username = REXCVAR_GET(username);
-	if (user_index.value() == 0 && username[0] != 0)
+	if (username[0] != 0)
 	{
 		rex::string::util_copy_truncating(buffer, username, std::min(buffer_len.value(), uint32_t(16)));
 
@@ -95,6 +89,8 @@ ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
 	return result;
 }
 PPC_HOOK(rex_XUserGetName, XUserGetName);
+
+PPC_HOOK(rex_main_game_unload_and_prepare_for_next_game, main_game_unload_and_prepare_for_next_game);
 
 #pragma endregion
 
@@ -156,8 +152,8 @@ enum e_controller_component
 
 void midasm_hook__event_manager_button_pressed(PPCRegister& r10, PPCRegister& r11)
 {
-	REFERENCE_DECLARE(0x828D7AC8, _main_globals, main_globals);
-	REFERENCE_DECLARE(0x828D7B30, s_main_game_globals, main_game_globals);
+	REX_DATA_REFERENCE(0x828D7AC8, _main_globals, main_globals);
+	REX_DATA_REFERENCE(0x828D7B30, s_main_game_globals, main_game_globals);
 
 	switch (r10.u32)
 	{
@@ -337,31 +333,15 @@ void midasm_hook__parse_controller_button_string(PPCRegister& r6, PPCRegister& r
 #pragma endregion
 
 /*
-loc_823A16FC:
-loc_823A1624:
-	goto loc_823A16BC;
+		goto loc_823A16AC;
+	case 6:
+		return;
+	case 7:
+		goto loc_823A16BC;
 */
 
 /*
 		goto loc_821F2880;
 	default:
 		goto loc_821F2DBC;
-*/
-
-/*
-	case 0:
-		goto loc_82175CB4;
-	case 1:
-		return;
-	case 2:
-		loc_82175C68(ctx, base);
-		return;
-	case 3:
-		return;
-	case 4:
-		loc_82175C68(ctx, base);
-		return;
-	case 5:
-		loc_82175C9C(ctx, base);
-		return;
 */
