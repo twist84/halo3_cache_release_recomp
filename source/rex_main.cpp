@@ -95,7 +95,7 @@ void Halo3CacheReleaseApp::OnPostSetup()
 
 void Halo3CacheReleaseApp::OnConfigurePaths(rex::PathConfig& paths)
 {
-	//paths.game_data_root = ".";
-	//paths.user_data_root = ".";
-	//paths.update_data_root = ".";
+	paths.game_data_root = ".";
+	paths.user_data_root = ".";
+	paths.update_data_root = ".";
 }

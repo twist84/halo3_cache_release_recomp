@@ -2371,7 +2371,7 @@ labels = [0x821E7834]
 0x82171908 = { name = "rex_tls_set_g_main_render_timing_data_allocator", size = 0x10 }
 0x82171918 = { name = "rex_main_thread_combine_timing_data", size = 0x50 }
 0x82171968 = { name = "rex_main_thread_process_pending_messages", size = 0xA8 }
-0x82171A10 = { name = "rex_internal_halt_render_thread_and_lock_resources", size = 0x230 }
+0x82171A10 = { name = "rex__internal_halt_render_thread_and_lock_resources", size = 0x230 }
 0x82171C40 = { name = "rex_unlock_resources_and_resume_render_thread", size = 0xB0 }
 0x82171CF0 = { name = "rex_process_published_game_state", size = 0x68 }
 0x82171D58 = { name = "rex_render_thread_loop", size = 0x248 }
