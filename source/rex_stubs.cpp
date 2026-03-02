@@ -81,7 +81,7 @@ ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
 	ppc_u32_result_t result;
 
 	auto username = REXCVAR_GET(username);
-	if (username[0] != 0)
+	if (user_index.value() == 0 && username[0] != 0)
 	{
 		rex::string::util_copy_truncating(buffer, username, std::min(buffer_len.value(), uint32_t(16)));
 
