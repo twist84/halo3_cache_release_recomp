@@ -48,14 +48,34 @@ static_assert(sizeof(game_globals_storage) == 0xD930);
 
 /* ---------- prototypes */
 
-REX_PPC_EXTERN_IMPORT(game_dispose_from_old_map);
-REX_PPC_EXTERN_IMPORT(game_in_progress);
-
 /* ---------- globals */
+
+thread_local game_globals_storage* game_globals = nullptr;
 
 /* ---------- private variables */
 
+/* ---------- ppc */
+
+// exports
+
+REX_PPC_EXTERN_IMPORT(__tls_set_g_game_globals_allocator);
+REX_PPC_EXTERN_IMPORT(game_dispose_from_old_map);
+REX_PPC_EXTERN_IMPORT(game_in_progress);
+REX_PPC_EXTERN_IMPORT(game_initialize);
+
+// hooks
+
+REX_PPC_HOOK(__tls_set_g_game_globals_allocator);
+REX_PPC_HOOK(game_in_progress);
+
 /* ---------- public code */
+
+void __tls_set_g_game_globals_allocator(void* new_address)
+{
+	REX_PPC_INVOKE(__tls_set_g_game_globals_allocator, new_address);
+
+	game_globals = static_cast<game_globals_storage*>(new_address);
+}
 
 void game_dispose_from_old_map(void)
 {
@@ -64,8 +84,6 @@ void game_dispose_from_old_map(void)
 
 bool game_in_progress(void)
 {
-	game_globals_storage* game_globals = get_thread_local_by_offset<game_globals_storage>(k_tls_game_globals_offset);
-
 	bool result;
 	if (game_globals != nullptr)
 	{
@@ -78,6 +96,9 @@ bool game_in_progress(void)
 	return result;
 }
 
-PPC_HOOK(rex_game_in_progress, game_in_progress);
+void game_initialize(void)
+{
+	REX_PPC_INVOKE(game_initialize);
+}
 
 /* ---------- private code */

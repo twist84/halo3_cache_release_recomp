@@ -53,7 +53,7 @@ ppc_u32_result_t XUserGetName(ppc_u32_t user_index, ppc_pchar_t buffer,
 	}
 	return result;
 }
-PPC_HOOK(rex_XUserGetName, XUserGetName);
+REX_PPC_HOOK(XUserGetName);
 
 #pragma endregion
 

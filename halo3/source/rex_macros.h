@@ -20,6 +20,9 @@
 #define REX_PPC_INVOKE(function, ...) \
 	rex::GuestToHostFunction<function_return_t<decltype(function)>>(__imp__rex_##function, __VA_ARGS__)
 
+#define REX_PPC_HOOK(function) \
+	PPC_HOOK(rex_##function, function)
+
 #define REX_DATA_REFERENCE(address, type, name) \
 	type& name = *rex::Runtime::instance()->memory()->TranslateVirtual<type*>(address)
 

@@ -32,22 +32,26 @@ static_assert(sizeof(s_main_game_globals) == 0xD418);
 
 /* ---------- prototypes */
 
-REX_PPC_EXTERN_IMPORT(main_game_configure_map_memory);
-REX_PPC_EXTERN_IMPORT(main_game_internal_close_caches);
-REX_PPC_EXTERN_IMPORT(main_game_unload_and_prepare_for_next_game);
-REX_PPC_EXTERN_IMPORT(data_mine_insert_single_player_game_options);
-
 static void data_mine_insert_single_player_game_options(char const* event_name);
-
-// ppc hooks
-
-PPC_HOOK(rex_main_game_unload_and_prepare_for_next_game, main_game_unload_and_prepare_for_next_game);
 
 /* ---------- globals */
 
 /* ---------- private variables */
 
 static REX_DATA_REFERENCE2(0x828D7B30, s_main_game_globals, main_game_globals);
+
+/* ---------- ppc */
+
+// exports
+
+REX_PPC_EXTERN_IMPORT(main_game_configure_map_memory);
+REX_PPC_EXTERN_IMPORT(main_game_internal_close_caches);
+REX_PPC_EXTERN_IMPORT(main_game_unload_and_prepare_for_next_game);
+REX_PPC_EXTERN_IMPORT(data_mine_insert_single_player_game_options);
+
+// hooks
+
+REX_PPC_HOOK(main_game_unload_and_prepare_for_next_game);
 
 /* ---------- public code */
 
