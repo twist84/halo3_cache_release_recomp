@@ -12,34 +12,6 @@
 
 #pragma endregion
 
-#pragma region xbox_stubs
-
-PPC_STUB(_IoDismountVolume);
-PPC_STUB(_XCustomUnregisterDynamicActions);
-PPC_STUB(_XCustomSetDynamicActions);
-PPC_STUB(_XCustomGetLastActionPressEx);
-PPC_STUB(_XCustomGetCurrentGamercard);
-PPC_STUB(_XamShowPlayerReviewUI);
-PPC_STUB(_XamShowMessageComposeUI);
-PPC_STUB(_XamShowGamerCardUIForXUID);
-PPC_STUB(_XamShowFriendsUI);
-PPC_STUB(_XamShowFriendRequestUI);
-PPC_STUB(_XamShowCustomMessageComposeUI);
-PPC_STUB(_NetDll_XNetUnregisterKey);
-PPC_STUB(_NetDll_XNetUnregisterInAddr);
-PPC_STUB(_NetDll_XNetServerToInAddr);
-PPC_STUB(_NetDll_XNetRegisterKey);
-PPC_STUB(_NetDll_XNetQosLookup);
-PPC_STUB(_NetDll_XNetQosGetListenStats);
-PPC_STUB(_NetDll_XNetGetConnectStatus);
-PPC_STUB(_NetDll_XNetCreateKey);
-PPC_STUB(_NetDll_XNetConnect);
-PPC_STUB(_XNetLogonGetTitleID);
-PPC_STUB(_XamVoiceSubmitPacket);
-PPC_STUB(roundevenf);
-
-#pragma endregion
-
 #pragma region game_stubs
 
 PPC_STUB(rex_saved_film_directory_delete_contents)
