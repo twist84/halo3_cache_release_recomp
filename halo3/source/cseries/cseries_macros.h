@@ -163,6 +163,7 @@ static TYPE& operator--(TYPE& value, int __formal) \
 #define BYTES_TO_BITS(bytes) ((bytes) * 8)
 
 #define FLAG(shift) (1u << (shift))
+#define MASK(shift) ((1u << (shift)) - 1)
 #define FLAG_RANGE(min_bit, max_bit) (RANGE(max_bit) & ~RANGE(min_bit))
 
 #define SET_BIT(flags, bit, enable) do { if ((enable)) { (flags) |= FLAG((bit)); } else { (flags) &= ~FLAG((bit)); } } while(false)

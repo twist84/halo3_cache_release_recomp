@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "cseries/platform.h"
+
 /* ---------- constants */
 
 enum e_controller_component
@@ -33,9 +35,14 @@ enum e_controller_component
     _controller_component_button_left_shoulder = _controller_component_button_white,
 };
 
+FORWARD_DECLARE_ENUM(e_map_memory_configuration);
+
 /* ---------- definitions */
 
 /* ---------- prototypes */
+
+void user_interface_memory_dispose(void);
+void user_interface_memory_initialize(e_map_memory_configuration memory_configuration);
 
 /* ---------- globals */
 

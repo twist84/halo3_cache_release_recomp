@@ -14,8 +14,8 @@ enum memory_stage
     _memory_stage_resize_available,
     _memory_stage_map_configuration,
     _memory_stage_level_initialize,
-    _memory_stage_resize_locked,
     _memory_stage_in_level,
+
     k_memory_stage_count,
 };
 

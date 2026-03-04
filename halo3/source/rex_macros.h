@@ -23,11 +23,11 @@
 #define REX_PPC_HOOK(function) \
 	PPC_HOOK(rex_##function, function)
 
-#define REX_DATA_REFERENCE(address, type, name) \
-	type& name = *rex::Runtime::instance()->memory()->TranslateVirtual<type*>(address)
-
-#define REX_DATA_REFERENCE2(address, type, name) \
+#define REX_DATA_REFERENCE_DECLARE(address, type, name) \
 	type& name = *reinterpret_cast<type*>(0x100000000 + address)
+
+#define REX_DATA_REFERENCE_DECLARE_ARRAY(address, type, name, count) \
+	type(&name)[count] = *reinterpret_cast<type(*)[count]>(0x100000000 + address)
 
 /* ---------- definitions */
 

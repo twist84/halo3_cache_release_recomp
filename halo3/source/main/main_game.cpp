@@ -6,6 +6,9 @@
 #include "cache/physical_memory_map.h"
 #include "game/game.h"
 #include "game/game_engine.h"
+#include "interface/user_interface.h"
+#include "networking/network_memory.h"
+#include "networking/online/online_files.h"
 #include "scenario/scenario.h"
 #include "simulation/simulation.h"
 
@@ -14,6 +17,13 @@
 /* ---------- constants */
 
 /* ---------- definitions */
+
+struct s_configure_memory
+{
+	void(*dispose_memory_proc)(); // 0x0
+	void(*configure_memory_proc)(e_map_memory_configuration); // 0x4
+};
+static_assert(sizeof(s_configure_memory) == 0x10);
 
 struct s_main_game_globals
 {
@@ -32,13 +42,29 @@ static_assert(sizeof(s_main_game_globals) == 0xD418);
 
 /* ---------- prototypes */
 
+e_map_memory_configuration compute_desired_map_memory_configuration(const game_options* options);
+
+static void main_game_configure_map_memory(game_options const* options);
+static void main_game_configure_map_memory_pop();
+static void main_game_configure_map_memory_push(e_map_memory_configuration desired_memory_configuration);
+static void main_game_internal_close_caches();
+static void main_game_internal_pregame_unload();
+static void main_game_internal_map_unload_begin();
+static void main_game_internal_map_unload_complete();
 static void data_mine_insert_single_player_game_options(char const* event_name);
 
 /* ---------- globals */
 
 /* ---------- private variables */
 
-static REX_DATA_REFERENCE2(0x828D7B30, s_main_game_globals, main_game_globals);
+static s_configure_memory const g_configure_memory_procs[] =
+{
+	{ network_memory_shared_dispose, network_memory_shared_initialize },
+	{ user_interface_memory_dispose, user_interface_memory_initialize },
+	{ online_files_memory_dispose, online_files_memory_initialize }
+};
+
+static REX_DATA_REFERENCE_DECLARE(0x828D7B30, s_main_game_globals, main_game_globals);
 
 /* ---------- ppc */
 
@@ -55,9 +81,77 @@ REX_PPC_HOOK(main_game_unload_and_prepare_for_next_game);
 
 /* ---------- public code */
 
+e_map_memory_configuration compute_desired_map_memory_configuration(const game_options* options)
+{
+	e_map_memory_configuration desired_memory_configuration;
+	if (options != nullptr)
+	{
+		switch (options->game_mode)
+		{
+		case _game_mode_campaign:
+			desired_memory_configuration = _map_memory_configuration_campaign;
+			break;
+		case _game_mode_multiplayer:
+			desired_memory_configuration = _map_memory_configuration_multiplayer;
+			break;
+		case _game_mode_ui_shell:
+			desired_memory_configuration = _map_memory_configuration_main_menu;
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		desired_memory_configuration = _map_memory_configuration_none;
+	}
+	return desired_memory_configuration;
+}
+
 void main_game_configure_map_memory(game_options const* options)
 {
-	REX_PPC_INVOKE(main_game_configure_map_memory, options);
+	//REX_PPC_INVOKE(main_game_configure_map_memory, options);
+
+	e_map_memory_configuration desired_memory_configuration = compute_desired_map_memory_configuration(options);
+	if (main_game_globals.map_memory_configuration != desired_memory_configuration)
+	{
+		main_game_configure_map_memory_pop();
+		main_game_configure_map_memory_push(desired_memory_configuration);
+	}
+}
+
+void main_game_configure_map_memory_pop()
+{
+	if (main_game_globals.map_memory_configuration > _map_memory_configuration_none)
+	{
+		for (long index = NUMBEROF(g_configure_memory_procs) - 1; index >= 0; index--)
+		{
+			if (g_configure_memory_procs[index].dispose_memory_proc)
+			{
+				g_configure_memory_procs[index].dispose_memory_proc();
+			}
+		}
+
+		physical_memory_stage_pop(_memory_stage_map_configuration);
+		main_game_globals.map_memory_configuration = _map_memory_configuration_none;
+	}
+}
+
+void main_game_configure_map_memory_push(e_map_memory_configuration desired_memory_configuration)
+{
+	if (desired_memory_configuration > _map_memory_configuration_none)
+	{
+		physical_memory_stage_push(_memory_stage_map_configuration);
+		main_game_globals.map_memory_configuration = desired_memory_configuration;
+
+		for (long index = 0; index < NUMBEROF(g_configure_memory_procs); index++)
+		{
+			if (g_configure_memory_procs[index].configure_memory_proc)
+			{
+				g_configure_memory_procs[index].configure_memory_proc(desired_memory_configuration);
+			}
+		}
+	}
 }
 
 void main_game_internal_close_caches(void)

@@ -6,6 +6,18 @@
 
 /* ---------- constants */
 
+enum e_game_mode
+{
+	_game_mode_none = 0,
+	_game_mode_campaign = 1,
+	_game_mode_multiplayer = 2,
+	_game_mode_ui_shell = 3,
+	_game_mode_tool = 4,
+
+	k_game_mode_count = 5,
+	k_game_mode_bits = 3,
+};
+
 /* ---------- definitions */
 
 /* ---------- prototypes */

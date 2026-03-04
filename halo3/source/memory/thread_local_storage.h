@@ -27,4 +27,4 @@ t_type* get_thread_local_by_offset(unsigned long offset)
 	return result;
 }
 
-#endif // __CSERIES_STRING_H__
+#endif // __THREAD_LOCAL_STORAGE_H__

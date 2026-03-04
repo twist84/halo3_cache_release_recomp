@@ -40,16 +40,22 @@ static_assert(sizeof(_main_globals) == 0x64);
 
 /* ---------- prototypes */
 
-REX_PPC_EXTERN_IMPORT(_internal_halt_render_thread_and_lock_resources);
-REX_PPC_EXTERN_IMPORT(unlock_resources_and_resume_render_thread);
-
 /* ---------- globals */
 
-REX_DATA_REFERENCE2(0x82881954, bool, disable_main_loop_throttle);
+REX_DATA_REFERENCE_DECLARE(0x82881954, bool, disable_main_loop_throttle);
 
 /* ---------- private variables */
 
-static REX_DATA_REFERENCE2(0x828D7AC8, _main_globals, main_globals);
+static REX_DATA_REFERENCE_DECLARE(0x828D7AC8, _main_globals, main_globals);
+
+/* ---------- ppc */
+
+// exports
+
+REX_PPC_EXTERN_IMPORT(_internal_halt_render_thread_and_lock_resources);
+REX_PPC_EXTERN_IMPORT(unlock_resources_and_resume_render_thread);
+
+// hooks
 
 /* ---------- public code */
 

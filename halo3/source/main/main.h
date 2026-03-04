@@ -15,7 +15,12 @@
 
 enum e_map_memory_configuration
 {
-	k_map_memory_configuration_count = 4
+	_map_memory_configuration_none = 0,
+	_map_memory_configuration_main_menu,
+	_map_memory_configuration_multiplayer,
+	_map_memory_configuration_campaign,
+
+	k_map_memory_configuration_count
 };
 
 enum

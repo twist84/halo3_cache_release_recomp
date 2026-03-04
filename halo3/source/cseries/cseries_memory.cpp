@@ -43,10 +43,10 @@ void memmove_guarded(void* destination, const void* source, size_t size, const v
 	assert(bounds_size>=0);
 	if (size > 0)
 	{
-		unsigned long write_start = (unsigned long)(static_cast<char const*>(destination));
-		unsigned long write_end = (unsigned long)(write_start + size - 1);
-		unsigned long bounds_lower = (unsigned long)(static_cast<char const*>(bounds_start));
-		unsigned long bounds_upper = (unsigned long)(bounds_lower + bounds_size - 1);
+		size_t write_start = (size_t)(static_cast<char const*>(destination));
+		size_t write_end = (size_t)(write_start + size - 1);
+		size_t bounds_lower = (size_t)(static_cast<char const*>(bounds_start));
+		size_t bounds_upper = (size_t)(bounds_lower + bounds_size - 1);
 
 		assert(bounds_upper>=bounds_lower);
 		assert(bounds_size>0);

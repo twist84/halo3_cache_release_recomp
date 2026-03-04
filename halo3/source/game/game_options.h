@@ -4,13 +4,16 @@
 
 /* ---------- headers */
 
+#include "rex_macros.h"
+
 /* ---------- constants */
 
 /* ---------- definitions */
 
 struct game_options
 {
-	char __data[0xD300];
+	rex::be<long> game_mode;
+	char __data[0xD300 - 0x4];
 };
 
 /* ---------- prototypes */
