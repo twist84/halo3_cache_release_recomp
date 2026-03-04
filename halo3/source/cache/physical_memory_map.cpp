@@ -66,7 +66,7 @@ void physical_memory_stage_push(memory_stage stage)
 	assert(!TEST_MASK(physical_memory_globals.memory_stages[new_stage].high_address, k_physical_memory_page_mask));
 }
 
-void physical_memory_stage_pop(memory_stage stage) // 0x1801DB9D0
+void physical_memory_stage_pop(memory_stage stage)
 {
 	REX_PPC_INVOKE(physical_memory_stage_pop, stage);
 }
