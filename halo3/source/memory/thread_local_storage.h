@@ -14,7 +14,7 @@ constexpr unsigned long k_tls_game_globals_offset = 0x80;
 
 /* ---------- prototypes */
 
-REX_PPC_EXTERN_IMPORT(get_thread_local_by_offset);
+PPC_EXTERN_IMPORT(__imp__get_thread_local_by_offset);
 
 /* ---------- globals */
 
@@ -23,7 +23,7 @@ REX_PPC_EXTERN_IMPORT(get_thread_local_by_offset);
 template<typename t_type>
 t_type* get_thread_local_by_offset(unsigned long offset)
 {
-	t_type* result = rex::GuestToHostFunction<t_type*>(__imp__rex_get_thread_local_by_offset, offset);
+	t_type* result = rex::GuestToHostFunction<t_type*>(__imp__get_thread_local_by_offset, offset);
 	return result;
 }
 

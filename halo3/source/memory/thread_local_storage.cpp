@@ -14,8 +14,8 @@
 
 /* ---------- private code */
 
-__attribute__((alias("__imp__rex_get_thread_local_by_offset"))) PPC_WEAK_FUNC(rex_get_thread_local_by_offset);
-PPC_FUNC_IMPL(__imp__rex_get_thread_local_by_offset)
+__attribute__((alias("__imp__get_thread_local_by_offset"))) PPC_WEAK_FUNC(get_thread_local_by_offset);
+PPC_FUNC_IMPL(__imp__get_thread_local_by_offset)
 {
 	PPC_FUNC_PROLOGUE();
 
