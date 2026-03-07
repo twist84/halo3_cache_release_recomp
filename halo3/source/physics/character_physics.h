@@ -54,9 +54,7 @@ public:
 
 public:
 	void initialize(long object_index);
-#if 0
 	void set_mode(e_mode mode);
-#endif
 	e_mode get_mode() const;
 	bool is_sentinel_mode() const;
 	bool is_immune_to_collision_damage() const;
