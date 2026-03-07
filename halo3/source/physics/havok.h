@@ -40,6 +40,9 @@ static_assert(sizeof(s_havok_constants) == 0x30);
 
 /* ---------- prototypes */
 
+extern void havok_object_rebuild(long object_index);
+extern void havok_object_rebuild(long object_index, long flags);
+
 /* ---------- globals */
 
 extern s_havok_constants& g_havok_constants;
