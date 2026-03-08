@@ -17,12 +17,6 @@ enum e_character_physics_override
 
 /* ---------- definitions */
 
-class c_character_physics_mode_ground_datum;
-class c_character_physics_mode_flying_datum;
-class c_character_physics_mode_dead_datum;
-class c_character_physics_mode_sentinel_datum;
-class c_character_physics_mode_melee_datum;
-
 class c_character_physics_component
 {
 public:
@@ -51,18 +45,6 @@ public:
 
 		k_flag_count,
 	};
-
-public:
-	void initialize(long object_index);
-	void set_mode(e_mode mode);
-	e_mode get_mode() const;
-	bool is_sentinel_mode() const;
-	bool is_immune_to_collision_damage() const;
-	c_character_physics_mode_ground_datum* get_mode_ground();
-	c_character_physics_mode_flying_datum* get_mode_flying();
-	c_character_physics_mode_dead_datum* get_mode_dead();
-	c_character_physics_mode_sentinel_datum* get_mode_sentinel();
-	c_character_physics_mode_melee_datum* get_mode_melee();
 
 public:
 	short m_flags; // 0x0

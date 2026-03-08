@@ -35,17 +35,17 @@
 #define REX_DATA_REFERENCE_DECLARE_ARRAY(address, type, name, count) \
 	type(&name)[count] = *reinterpret_cast<type(*)[count]>(0x100000000 + address)
 
-#define REX_PPC_CONTEXT() \
+#define REX_PPC_CONTEXT_REF(name) \
 	auto current_thread = rex::system::XThread::GetCurrentThread(); \
 	assert(current_thread != nullptr); \
 	auto context = current_thread->thread_state()->context(); \
 	assert(context != nullptr); \
-	PPCContext& __restrict ctx = *context
+	PPCContext& __restrict name = *context
 
-#define REX_PPC_MEMBASE() \
+#define REX_PPC_MEMBASE_PTR(name) \
 auto* runtime = rex::Runtime::instance(); \
 auto* memory = runtime->memory(); \
-uint8_t* base = memory->virtual_membase()
+uint8_t* name = memory->virtual_membase()
 
 
 /* ---------- definitions */

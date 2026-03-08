@@ -149,6 +149,14 @@ labels = [0x821E7834]
 
 # c_character_physics_component::set_mode
 
+[[midasm_hook]]
+address = 0x8220CA6C
+name = "midasm_hook__c_character_physics_component_set_mode"
+after_instruction = true
+jump_address_on_true = 0x8220CAAC
+jump_address_on_false = 0x8220CA70
+
+# c_character_physics_mode_{mode}_datum::dispose
 [[switch_tables]]
 address = 0x8220CA84
 register = 11
@@ -156,11 +164,12 @@ labels = [
     0x8220CAAC,
     0x8220CAAC,
     0x8220CAAC,
-    0x8220CAA0, # requires manual fixup
-    0x8220CAA0, # requires manual fixup
+    0x8220CAAC, # 0x8220CAA0, # explicit fixup `midasm_hook__c_character_physics_component_set_mode`
+    0x8220CAAC, # 0x8220CAA0, # explicit fixup `midasm_hook__c_character_physics_component_set_mode`
     0x8220CAAC,
     ]
 
+# c_character_physics_mode_{mode}_datum::initialize
 [[switch_tables]]
 address = 0x8220CAD0
 register = 11
