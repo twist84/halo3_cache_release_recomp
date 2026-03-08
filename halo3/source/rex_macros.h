@@ -8,7 +8,10 @@
 #include "generated/halo3_cache_release_init.h"
 
 #include <rex/rex_app.h>
-#include <rex/ppc/function.h>	
+#include <rex/ppc/function.h>
+#include <rex/runtime.h>
+#include <rex/system/thread_state.h>
+#include <rex/system/xthread.h>
 
 #include <type_traits>
 
@@ -31,6 +34,19 @@
 
 #define REX_DATA_REFERENCE_DECLARE_ARRAY(address, type, name, count) \
 	type(&name)[count] = *reinterpret_cast<type(*)[count]>(0x100000000 + address)
+
+#define REX_PPC_CONTEXT() \
+	auto current_thread = rex::system::XThread::GetCurrentThread(); \
+	assert(current_thread != nullptr); \
+	auto context = current_thread->thread_state()->context(); \
+	assert(context != nullptr); \
+	PPCContext& __restrict ctx = *context
+
+#define REX_PPC_MEMBASE() \
+auto* runtime = rex::Runtime::instance(); \
+auto* memory = runtime->memory(); \
+uint8_t* base = memory->virtual_membase()
+
 
 /* ---------- definitions */
 
