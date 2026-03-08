@@ -300,6 +300,42 @@ static_assert(sizeof(half_vector3d) == 0x6);
 
 /* ---------- globals */
 
+extern real_rectangle3d const* global_null_rectangle3d;
+extern real_vector3d const* global_forward3d;
+extern real_vector3d const* global_zero_vector3d;
+extern real_point3d const* global_origin3d;
+extern real_vector3d const* global_up3d;
+extern real_vector3d const* global_down3d;
+extern real_matrix4x3 const* global_identity4x3;
+extern real_orientation const* global_identity_orientation;
+extern real_vector3d const* global_left3d;
+extern real_quaternion const* global_identity_quaternion;
+extern real_point2d const* global_origin2d;
+extern real_point2d const* global_x_axis2d;
+extern real_point2d const* global_y_axis2d;
+extern real_point2d const* global_negative_x_axis2d;
+extern real_point2d const* global_negative_y_axis2d;
+extern real_vector2d const* global_zero_vector2d;
+extern real_vector2d const* global_forward2d;
+extern real_vector2d const* global_left2d;
+extern real_vector2d const* global_backward2d;
+extern real_vector2d const* global_right2d;
+extern real_point3d const* global_x_axis3d;
+extern real_point3d const* global_y_axis3d;
+extern real_point3d const* global_z_axis3d;
+extern real_point3d const* global_negative_x_axis3d;
+extern real_point3d const* global_negative_y_axis3d;
+extern real_point3d const* global_negative_z_axis3d;
+extern real_vector3d const* global_backward3d;
+extern real_vector3d const* global_right3d;
+extern real_euler_angles2d const* global_zero_angles2d;
+extern real_euler_angles3d const* global_zero_angles3d;
+extern real_vector4d const* global_zero_vector4d;
+extern real_matrix4x3 const* global_negative_identity4x3;
+extern real_rectangle2d const* global_null_rectangle2d;
+extern real_rectangle2d const* global_zero_rectangle2d;
+extern real_rectangle3d const* global_zero_rectangle3d;
+
 /* ---------- public code */
 
 /* ---------- private code */
