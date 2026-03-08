@@ -85,10 +85,8 @@ REX_PPC_HOOK(XUserGetName);
 loc_8220CAA0:
 	// addi r3,r31,8 # this
 	ctx.r3.s64 = ctx.r31.s64 + 8;
-
 	// lwz r4,4(r31) # m_object_index
 	ctx.r4.u64 = PPC_LOAD_U32(ctx.r31.u32 + 4);
-
 	// bl 0x82227438
 	ctx.lr = 0x8220CAAC;
 	rex_c_character_physics_mode_sentinel_datum_dispose(ctx, base);

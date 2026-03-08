@@ -13,7 +13,7 @@ include(generated/rexglue.cmake)
 
 # Sources
 set(HALO3CACHERELEASE_SOURCES
-    source/rex_main.cpp
+    source/main.cpp
 )
 
 if(WIN32)
