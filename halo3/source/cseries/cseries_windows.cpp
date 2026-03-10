@@ -1,8 +1,10 @@
 /* ---------- headers */
 
-#include "simulation/simulation.h"
+#include "cseries/cseries_windows.h"
 
 #include "rex_macros.h"
+
+#include <time.h>
 
 /* ---------- constants */
 
@@ -18,15 +20,15 @@
 
 // exports
 
-REX_PPC_EXTERN_IMPORT(simulation_stop);
+REX_PPC_EXTERN_IMPORT(GetTickCount);
 
 // hooks
 
 /* ---------- public code */
 
-void simulation_stop()
+unsigned long system_milliseconds(void)
 {
-	REX_PPC_INVOKE(simulation_stop);
+	return GetTickCount();
 }
 
 /* ---------- private code */

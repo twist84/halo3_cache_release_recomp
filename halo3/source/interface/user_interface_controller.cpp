@@ -1,6 +1,6 @@
 /* ---------- headers */
 
-#include "simulation/simulation.h"
+#include "interface/user_interface_controller.h"
 
 #include "rex_macros.h"
 
@@ -18,15 +18,15 @@
 
 // exports
 
-REX_PPC_EXTERN_IMPORT(simulation_stop);
+REX_PPC_EXTERN_IMPORT(user_interface_controller_get_rumble_enabled);
 
 // hooks
 
 /* ---------- public code */
 
-void simulation_stop()
+bool user_interface_controller_get_rumble_enabled(e_controller_index controller_index)
 {
-	REX_PPC_INVOKE(simulation_stop);
+	return REX_PPC_INVOKE(user_interface_controller_get_rumble_enabled, controller_index);
 }
 
 /* ---------- private code */

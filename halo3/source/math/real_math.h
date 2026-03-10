@@ -338,6 +338,19 @@ extern real_rectangle3d const* global_zero_rectangle3d;
 
 /* ---------- public code */
 
+extern real square_root(real x);
+extern real reciprocal_square_root(real x);
+extern real magnitude_squared2d(real_vector2d const* v);
+extern real magnitude_squared3d(real_vector3d const* v);
+extern real magnitude2d(real_vector2d const* v);
+extern real magnitude3d(real_vector3d const* v);
+extern real_vector2d* scale_vector2d(real_vector2d const* a, real c, real_vector2d* result);
+extern real_vector3d* scale_vector3d(real_vector3d const* a, real c, real_vector3d* result);
+extern real normalize2d(real_vector2d* v);
+extern real normalize3d(real_vector3d* v);
+extern real_vector2d* set_real_vector2d(real_vector2d* vector, real i, real j);
+extern real_vector3d* set_real_vector3d(real_vector3d* vector, real i, real j, real k);
+
 /* ---------- private code */
 
 #endif // __REAL_MATH_H__

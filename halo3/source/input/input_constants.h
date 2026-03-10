@@ -31,6 +31,13 @@ enum e_gamepad_button
 	NUMBER_OF_GAMEPAD_BINARY_BUTTONS = NUMBER_OF_GAMEPAD_BUTTONS - FIRST_GAMEPAD_BINARY_BUTTON,
 };
 
+enum e_gamepad_stick
+{
+	_gamepad_stick_left = 0,
+	_gamepad_stick_right,
+	NUMBER_OF_GAMEPAD_STICKS,
+};
+
 /* ---------- definitions */
 
 /* ---------- prototypes */

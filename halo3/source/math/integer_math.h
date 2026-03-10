@@ -4,6 +4,8 @@
 
 /* ---------- headers */
 
+#include "rex_macros.h"
+
 /* ---------- constants */
 
 enum
@@ -64,11 +66,11 @@ static_assert(sizeof(short_bounds2d) == 0x4);
 
 union point2d
 {
-	short n[2];
+	rex::be<short> n[2];
 	struct
 	{
-		short x;
-		short y;
+		rex::be<short> x;
+		rex::be<short> y;
 	};
 };
 static_assert(sizeof(point2d) == 0x4);

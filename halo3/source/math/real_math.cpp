@@ -2,6 +2,8 @@
 
 #include "math/real_math.h"
 
+#include <math.h>
+
 /* ---------- constants */
 
 /* ---------- definitions */
@@ -104,5 +106,99 @@ real_point3d const* global_negative_y_axis3d = reinterpret_cast<real_point3d con
 real_point3d const* global_negative_z_axis3d = reinterpret_cast<real_point3d const*>(&private_negative_identity4x3.up);
 
 /* ---------- public code */
+
+real square_root(real x)
+{
+	return (real)sqrt(x);
+}
+
+real reciprocal_square_root(real x)
+{
+	return 1.0f / square_root(x);
+}
+
+real magnitude_squared2d(real_vector2d const* v)
+{
+	return (v->i * v->i) + (v->j * v->j);
+}
+
+real magnitude_squared3d(real_vector3d const* v)
+{
+	return ((v->i * v->i) + (v->j * v->j)) + (v->k * v->k);
+}
+
+real magnitude2d(real_vector2d const* v)
+{
+	return square_root(magnitude_squared2d(v));
+}
+
+real magnitude3d(real_vector3d const* v)
+{
+	return square_root(magnitude_squared3d(v));
+}
+
+real_vector2d* scale_vector2d(real_vector2d const* a, real c, real_vector2d* result)
+{
+	result->i = c * a->i;
+	result->j = c * a->j;
+
+	return result;
+}
+
+real_vector3d* scale_vector3d(real_vector3d const* a, real c, real_vector3d* result)
+{
+	result->i = c * a->i;
+	result->j = c * a->j;
+	result->k = c * a->k;
+
+	return result;
+}
+
+real normalize2d(real_vector2d* v)
+{
+	real magnitude = magnitude2d(v);
+	if (fabsf(magnitude - 0.0f) < k_real_epsilon)
+	{
+		magnitude = 0.0f;
+	}
+	else
+	{
+		scale_vector2d(v, 1.0f / magnitude, v);
+	}
+
+	return magnitude;
+}
+
+real normalize3d(real_vector3d* v)
+{
+	real magnitude = magnitude3d(v);
+	if (fabsf(magnitude - 0.0f) < k_real_epsilon)
+	{
+		magnitude = 0.0f;
+	}
+	else
+	{
+		scale_vector3d(v, 1.0f / magnitude, v);
+	}
+
+	return magnitude;
+}
+
+real_vector2d* set_real_vector2d(real_vector2d* vector, real i, real j)
+{
+	vector->i = i;
+	vector->j = j;
+
+	return vector;
+}
+
+real_vector3d* set_real_vector3d(real_vector3d* vector, real i, real j, real k)
+{
+	vector->i = i;
+	vector->j = j;
+	vector->k = k;
+
+	return vector;
+}
 
 /* ---------- private code */
