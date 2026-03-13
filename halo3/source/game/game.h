@@ -26,6 +26,7 @@ extern void __tls_set_g_game_globals_allocator(void* new_address);
 extern void game_dispose_from_old_map(void);
 extern bool game_in_progress(void);
 extern void game_initialize(void);
+extern bool game_is_ui_shell(void);
 
 // game_time
 

@@ -101,4 +101,18 @@ void game_initialize(void)
 	REX_PPC_INVOKE(game_initialize);
 }
 
+bool game_is_ui_shell()
+{
+	bool result;
+	if (game_globals != nullptr)
+	{
+		result = game_globals->options.game_mode == _game_mode_ui_shell;
+	}
+	else
+	{
+		result = false;
+	}
+	return result;
+}
+
 /* ---------- private code */

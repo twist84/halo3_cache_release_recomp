@@ -92,6 +92,48 @@ static constexpr WORD button_to_xinput_button_mask[] =
 };
 static_assert(NUMBEROF(button_to_xinput_button_mask) == NUMBER_OF_GAMEPAD_BUTTONS);
 
+static constexpr int k_gamepad_ui_shell_key_mapping[] =
+{
+	NONE,      // _gamepad_analog_button_left_trigger
+	NONE,      // _gamepad_analog_button_right_trigger
+	VK_UP,     // _gamepad_binary_button_dpad_up
+	VK_DOWN,   // _gamepad_binary_button_dpad_down
+	VK_LEFT,   // _gamepad_binary_button_dpad_left
+	VK_RIGHT,  // _gamepad_binary_button_dpad_right
+	VK_ESCAPE, // _gamepad_binary_button_start
+	VK_TAB,    // _gamepad_binary_button_back
+	'T',       // _gamepad_binary_button_left_thumb
+	'Y',       // _gamepad_binary_button_right_thumb
+	'A',       // _gamepad_binary_button_a
+	'B',       // _gamepad_binary_button_b
+	'X',       // _gamepad_binary_button_x
+	'Y',       // _gamepad_binary_button_y
+	'Q',       // _gamepad_binary_button_left_bumper
+	'E',       // _gamepad_binary_button_right_bumper
+};
+static_assert(NUMBEROF(k_gamepad_ui_shell_key_mapping) == NUMBER_OF_GAMEPAD_BUTTONS);
+
+static constexpr int k_gamepad_in_game_key_mapping[] =
+{
+	VK_MBUTTON, // _gamepad_analog_button_left_trigger
+	VK_LBUTTON, // _gamepad_analog_button_right_trigger
+	VK_UP,      // _gamepad_binary_button_dpad_up
+	VK_DOWN,    // _gamepad_binary_button_dpad_down
+	VK_LEFT,    // _gamepad_binary_button_dpad_left
+	VK_RIGHT,   // _gamepad_binary_button_dpad_right
+	VK_ESCAPE,  // _gamepad_binary_button_start
+	VK_TAB,     // _gamepad_binary_button_back
+	VK_CONTROL, // _gamepad_binary_button_left_thumb
+	VK_RBUTTON, // _gamepad_binary_button_right_thumb
+	VK_SPACE,   // _gamepad_binary_button_a
+	'Q',        // _gamepad_binary_button_b
+	VK_SHIFT,   // _gamepad_binary_button_x
+	'E',        // _gamepad_binary_button_y
+	'F',        // _gamepad_binary_button_left_bumper
+	'R',        // _gamepad_binary_button_right_bumper
+};
+static_assert(NUMBEROF(k_gamepad_in_game_key_mapping) == NUMBER_OF_GAMEPAD_BUTTONS);
+
 /* ---------- ppc */
 
 // exports
@@ -102,16 +144,16 @@ REX_PPC_HOOK(input_update);
 
 /* ---------- public code */
 
-void update_button(unsigned char* frames, unsigned short* msec, bool down, long elapsed_msec)
+void update_button(unsigned char* frames, unsigned short* msec, bool down, unsigned long elapsed_msec)
 {
 	*frames = down ? MIN(*frames + 1, k_unsigned_char_max) : 0;
-	*msec = down ? MIN(*msec + static_cast<unsigned long>(elapsed_msec), k_unsigned_short_max) : 0;
+	*msec = down ? MIN(*msec + elapsed_msec, k_unsigned_short_max) : 0;
 }
 
-void update_button(unsigned char* frames, rex::be<unsigned short>* msec, bool down, long elapsed_msec)
+void update_button(unsigned char* frames, rex::be<unsigned short>* msec, bool down, unsigned long elapsed_msec)
 {
 	*frames = down ? MIN(*frames + 1, k_unsigned_char_max) : 0;
-	*msec = down ? MIN(*msec + static_cast<unsigned long>(elapsed_msec), k_unsigned_short_max) : 0;
+	*msec = down ? MIN(*msec + elapsed_msec, k_unsigned_short_max) : 0;
 }
 
 bool input_initialize(void)
@@ -259,7 +301,7 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 				&in_out_gamepad_state->button_frames[button_index],
 				&in_out_gamepad_state->button_msec[button_index],
 				binary_down,
-				static_cast<long>(elapsed_msec));
+				elapsed_msec);
 		}
 
 		update_thumbstick(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY, &in_out_gamepad_state->sticks[_gamepad_stick_left]);
@@ -276,7 +318,7 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 				&in_out_gamepad_state->button_frames[button_index],
 				&in_out_gamepad_state->button_msec[button_index],
 				binary_down,
-				static_cast<long>(elapsed_msec));
+				elapsed_msec);
 
 			update_threshold(
 				&in_out_gamepad_state->analog_button_thresholds[button_index],
@@ -290,13 +332,17 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 	return result;
 }
 
+static POINT s_prev_mouse_pos;
+static bool s_mouse_initialized = false;
+
 bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_msec, gamepad_state_be* in_out_gamepad_state, debug_gamepad_data_be* out_debug_gamepad_data)
 {
 	(void)(out_debug_gamepad_data);
 	assert(in_out_gamepad_state != nullptr);
 
+	bool result;
+
 	e_controller_index controller_index = static_cast<e_controller_index>(gamepad_index);
-	bool result = false;
 
 	DWORD xinput_user_index = static_cast<DWORD>(controller_index);
 	XINPUT_STATE xinput_state;
@@ -310,7 +356,7 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 				&in_out_gamepad_state->button_frames[button_index],
 				&in_out_gamepad_state->button_msec[button_index],
 				binary_down,
-				static_cast<long>(elapsed_msec));
+				elapsed_msec);
 		}
 
 		update_thumbstick(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY, &in_out_gamepad_state->sticks[_gamepad_stick_left]);
@@ -327,7 +373,7 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 				&in_out_gamepad_state->button_frames[button_index],
 				&in_out_gamepad_state->button_msec[button_index],
 				binary_down,
-				static_cast<long>(elapsed_msec));
+				elapsed_msec);
 
 			update_threshold(
 				&in_out_gamepad_state->analog_button_thresholds[button_index],
@@ -336,6 +382,98 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 		}
 
 		result = true;
+	}
+	else
+	{
+		result = false;
+	}
+
+	// keyboard and mouse
+	if (xinput_user_index == 0)
+	{
+		for (long button_index = FIRST_GAMEPAD_BINARY_BUTTON; button_index < NUMBER_OF_GAMEPAD_BUTTONS; button_index++)
+		{
+			int key = game_is_ui_shell() ? k_gamepad_ui_shell_key_mapping[button_index] : k_gamepad_in_game_key_mapping[button_index];
+			if (key != NONE)
+			{
+				bool key_down = GetAsyncKeyState(key) & 0x8000;
+
+				update_button(
+					&in_out_gamepad_state->button_frames[button_index],
+					&in_out_gamepad_state->button_msec[button_index],
+					key_down,
+					elapsed_msec);
+			}
+		}
+
+		{
+			short thumb_lx = 0;
+			short thumb_ly = 0;
+
+			if (GetAsyncKeyState('A') & 0x8000) thumb_lx -= 32767;
+			if (GetAsyncKeyState('D') & 0x8000) thumb_lx += 32767;
+			if (GetAsyncKeyState('W') & 0x8000) thumb_ly += 32767;
+			if (GetAsyncKeyState('S') & 0x8000) thumb_ly -= 32767;
+
+			update_thumbstick(thumb_lx, thumb_ly, &in_out_gamepad_state->sticks[_gamepad_stick_left]);
+		}
+
+		{
+			// mouse -> right stick
+			POINT mouse_pos;
+			GetCursorPos(&mouse_pos);
+
+			if (!s_mouse_initialized)
+			{
+				s_prev_mouse_pos = mouse_pos;
+				s_mouse_initialized = true;
+			}
+
+			LONG dx = mouse_pos.x - s_prev_mouse_pos.x;
+			LONG dy = mouse_pos.y - s_prev_mouse_pos.y;
+
+			s_prev_mouse_pos = mouse_pos;
+
+			const float sensitivity = 800.0f;
+
+			short thumb_rx = (short)(dx * sensitivity);
+			short thumb_ry = (short)(-dy * sensitivity);
+
+			if (thumb_rx >  32767) thumb_rx =  32767;
+			if (thumb_rx < -32768) thumb_rx = -32768;
+			if (thumb_ry >  32767) thumb_ry =  32767;
+			if (thumb_ry < -32768) thumb_ry = -32768;
+
+			update_thumbstick(thumb_rx, thumb_ry, &in_out_gamepad_state->sticks[_gamepad_stick_right]);
+		}
+
+		for (long button_index = FIRST_GAMEPAD_ANALOG_BUTTON; button_index < NUMBER_OF_GAMEPAD_ANALOG_BUTTONS; button_index++)
+		{
+			int key = game_is_ui_shell() ? k_gamepad_ui_shell_key_mapping[button_index] : k_gamepad_in_game_key_mapping[button_index];
+			if (key != NONE)
+			{
+				bool key_down = GetAsyncKeyState(key) & 0x8000;
+				update_trigger(key_down ? k_unsigned_char_max : 0, &in_out_gamepad_state->analog_buttons[button_index]);
+
+				result = true;
+			}
+		}
+
+		for (long button_index = 0; button_index < NUMBER_OF_GAMEPAD_ANALOG_BUTTONS; button_index++)
+		{
+			bool binary_down = in_out_gamepad_state->analog_buttons[button_index] > in_out_gamepad_state->analog_button_thresholds[button_index];
+
+			update_button(
+				&in_out_gamepad_state->button_frames[button_index],
+				&in_out_gamepad_state->button_msec[button_index],
+				binary_down,
+				elapsed_msec);
+
+			update_threshold(
+				&in_out_gamepad_state->analog_button_thresholds[button_index],
+				binary_down,
+				in_out_gamepad_state->analog_buttons[button_index]);
+		}
 	}
 
 	return result;
