@@ -39,7 +39,7 @@ void post_setup_callback(void)
 
 #pragma region ppc_hooks
 
-REXCVAR_DEFINE_STRING(username, "", "RexUser", "");
+REXCVAR_DEFINE_STRING(username, "User", "Rex/User", "override the users name");
 
 namespace rex::kernel::xam
 {

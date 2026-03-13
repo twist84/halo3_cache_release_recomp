@@ -188,6 +188,7 @@ labels = [
 #
 # fixes crash when exiting pregame lobby
 # you can't exit from pregame now
+# see https://gist.github.com/twist84/b3593dd5ea202bbdc3e050165812e850 for implementation
 
 [[switch_tables]]
 address = 0x8242DFC8
