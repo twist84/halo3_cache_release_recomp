@@ -16,7 +16,9 @@
 
 #include "rex_macros.h"
 
+#include <imgui.h>
 #include <hidusage.h>
+
 #include <Xinput.h>
 #pragma comment(lib, "XInput.lib")
 
@@ -68,10 +70,12 @@ struct s_rawinput_state
 
 /* ---------- prototypes */
 
-static void input_rawinput_process(const RAWINPUT* raw);
+static void input_rawinput_process(RAWINPUT const* raw);
 static void input_rawinput_poll(void);
 static void input_update_gamepads(long elapsed_msec);
 static void input_update_gamepads_rumble(void);
+
+static bool gamepad_state_get(unsigned long gamepad_index, XINPUT_STATE* out_state);
 
 static void update_threshold(unsigned char* threshold, bool down, unsigned char current_value);
 static void update_trigger(unsigned char input, unsigned char* output);
@@ -83,7 +87,7 @@ static void update_thumbstick(short input_x, short input_y, point2d_be* output);
 //static input_globals_xenon input_globals;
 static REX_DATA_REFERENCE_DECLARE(0x828423F0, input_globals_xenon, input_globals);
 
-static s_rawinput_state rawinput_globals{};
+static s_rawinput_state rawinput_globals = {};
 
 REXCVAR_DEFINE_BOOL(enable_pc_joystick, false, "Blam/Runtime", "enable keyboard and mouse support");
 REXCVAR_DEFINE_DOUBLE(pc_joystick_sensitivity, 0.005, "Blam/Runtime", "mouse sensitivity for pc joystick");
@@ -114,43 +118,43 @@ static_assert(NUMBEROF(button_to_xinput_button_mask) == NUMBER_OF_GAMEPAD_BUTTON
 
 static constexpr e_input_key_code k_gamepad_ui_shell_key_mapping[] =
 {
-	_key_not_a_key,  // _gamepad_analog_button_left_trigger
-	_key_not_a_key,  // _gamepad_analog_button_right_trigger
-	_key_up_arrow,   // _gamepad_binary_button_dpad_up
-	_key_down_arrow, // _gamepad_binary_button_dpad_down
-	_key_left_arrow, // _gamepad_binary_button_dpad_left
-	_key_right_arrow,// _gamepad_binary_button_dpad_right
-	_key_escape,     // _gamepad_binary_button_start
-	_key_tab,        // _gamepad_binary_button_back
-	_key_t,          // _gamepad_binary_button_left_thumb
-	_key_y,          // _gamepad_binary_button_right_thumb
-	_key_a,          // _gamepad_binary_button_a
-	_key_b,          // _gamepad_binary_button_b
-	_key_x,          // _gamepad_binary_button_x
-	_key_y,          // _gamepad_binary_button_y
-	_key_q,          // _gamepad_binary_button_left_bumper
-	_key_e,          // _gamepad_binary_button_right_bumper
+	_key_not_a_key,   // _gamepad_analog_button_left_trigger
+	_key_not_a_key,   // _gamepad_analog_button_right_trigger
+	_key_up_arrow,    // _gamepad_binary_button_dpad_up
+	_key_down_arrow,  // _gamepad_binary_button_dpad_down
+	_key_left_arrow,  // _gamepad_binary_button_dpad_left
+	_key_right_arrow, // _gamepad_binary_button_dpad_right
+	_key_escape,      // _gamepad_binary_button_start
+	_key_tab,         // _gamepad_binary_button_back
+	_key_t,           // _gamepad_binary_button_left_thumb
+	_key_y,           // _gamepad_binary_button_right_thumb
+	_key_a,           // _gamepad_binary_button_a
+	_key_b,           // _gamepad_binary_button_b
+	_key_x,           // _gamepad_binary_button_x
+	_key_y,           // _gamepad_binary_button_y
+	_key_q,           // _gamepad_binary_button_left_bumper
+	_key_e,           // _gamepad_binary_button_right_bumper
 };
 static_assert(NUMBEROF(k_gamepad_ui_shell_key_mapping) == NUMBER_OF_GAMEPAD_BUTTONS);
 
 static constexpr e_input_key_code k_gamepad_in_game_key_mapping[] =
 {
-	_key_not_a_key,  // _gamepad_analog_button_left_trigger  (RMB, handled separately)
-	_key_not_a_key,  // _gamepad_analog_button_right_trigger (LMB, handled separately)
-	_key_up_arrow,   // _gamepad_binary_button_dpad_up
-	_key_down_arrow, // _gamepad_binary_button_dpad_down
-	_key_left_arrow, // _gamepad_binary_button_dpad_left
-	_key_right_arrow,// _gamepad_binary_button_dpad_right
-	_key_escape,     // _gamepad_binary_button_start
-	_key_tab,        // _gamepad_binary_button_back
-	_key_control,    // _gamepad_binary_button_left_thumb
-	_key_not_a_key,  // _gamepad_binary_button_right_thumb   (RMB, handled separately)
-	_key_space,      // _gamepad_binary_button_a
-	_key_q,          // _gamepad_binary_button_b
-	_key_shift,      // _gamepad_binary_button_x
-	_key_e,          // _gamepad_binary_button_y
-	_key_f,          // _gamepad_binary_button_left_bumper
-	_key_r,          // _gamepad_binary_button_right_bumper
+	_key_not_a_key,   // _gamepad_analog_button_left_trigger  (RMB, handled separately)
+	_key_not_a_key,   // _gamepad_analog_button_right_trigger (LMB, handled separately)
+	_key_up_arrow,    // _gamepad_binary_button_dpad_up
+	_key_down_arrow,  // _gamepad_binary_button_dpad_down
+	_key_left_arrow,  // _gamepad_binary_button_dpad_left
+	_key_right_arrow, // _gamepad_binary_button_dpad_right
+	_key_escape,      // _gamepad_binary_button_start
+	_key_tab,         // _gamepad_binary_button_back
+	_key_control,     // _gamepad_binary_button_left_thumb
+	_key_z,           // _gamepad_binary_button_right_thumb   (RMB, handled separately)
+	_key_space,       // _gamepad_binary_button_a
+	_key_q,           // _gamepad_binary_button_b
+	_key_shift,       // _gamepad_binary_button_x
+	_key_e,           // _gamepad_binary_button_y
+	_key_f,           // _gamepad_binary_button_left_bumper
+	_key_r,           // _gamepad_binary_button_right_bumper
 };
 static_assert(NUMBEROF(k_gamepad_in_game_key_mapping) == NUMBER_OF_GAMEPAD_BUTTONS);
 
@@ -447,7 +451,7 @@ static LRESULT CALLBACK input_rawinput_wndproc(HWND hwnd, UINT msg, WPARAM wpara
 		if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT,
 				buffer, &size, sizeof(RAWINPUTHEADER)) != static_cast<UINT>(-1))
 		{
-			input_rawinput_process(reinterpret_cast<const RAWINPUT*>(buffer));
+			input_rawinput_process(reinterpret_cast<RAWINPUT const*>(buffer));
 		}
 	}
 
@@ -520,7 +524,7 @@ void input_update(void)
 		input_globals.suppressed_flag = false;
 		input_globals.last_milliseconds = time;
 
-		for (e_controller_index controller_index = _controller0; controller_index < k_number_of_controllers; controller_index++)
+		for (e_controller_index controller_index = first_controller(); controller_index != k_no_controller; controller_index = next_controller(controller_index))
 		{
 			input_globals.valid_gamepads[controller_index] = false;
 		}
@@ -605,41 +609,39 @@ void input_set_gamepad_rumbler_state(short gamepad_index, unsigned short left_sp
 	}
 }
 
-void update_threshold(unsigned char* analog_buttons, bool trigger_down, unsigned char duration_ms)
+void update_threshold(unsigned char* threshold, bool trigger_down, unsigned char duration_ms)
 {
 	if (trigger_down)
 	{
 		unsigned char msec_down = CLAMP_LOWER(duration_ms, 0, 32);
-		if (*analog_buttons <= msec_down)
+		if (*threshold <= msec_down)
 		{
-			*analog_buttons = msec_down;
+			*threshold = msec_down;
 		}
 	}
 	else
 	{
 		unsigned char msec_down = CLAMP_UPPER(duration_ms, 64, 255);
-		if (*analog_buttons >= msec_down)
+		if (*threshold >= msec_down)
 		{
-			*analog_buttons = msec_down;
+			*threshold = msec_down;
 		}
 	}
 }
 
-bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_msec, gamepad_state* in_out_gamepad_state, debug_gamepad_data* out_debug_gamepad_data)
+bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_msec, gamepad_state_be* in_out_gamepad_state, debug_gamepad_data_be* out_debug_gamepad_data)
 {
 	(void)(out_debug_gamepad_data);
 	assert(in_out_gamepad_state != nullptr);
 
-	e_controller_index controller_index = static_cast<e_controller_index>(gamepad_index);
-	bool result = false;
+	bool result;
 
-	DWORD xinput_user_index = static_cast<DWORD>(controller_index);
-	XINPUT_STATE xinput_state;
-	if (XInputGetState(xinput_user_index, &xinput_state) == ERROR_SUCCESS)
+	XINPUT_STATE xinput_state = {};
+	if (gamepad_state_get(gamepad_index, &xinput_state))
 	{
 		for (long button_index = FIRST_GAMEPAD_BINARY_BUTTON; button_index < NUMBER_OF_GAMEPAD_BUTTONS; button_index++)
 		{
-			bool binary_down = TEST_MASK(xinput_state.Gamepad.wButtons, button_to_xinput_button_mask[button_index]);
+			bool const binary_down = TEST_MASK(xinput_state.Gamepad.wButtons, button_to_xinput_button_mask[button_index]);
 
 			update_button(
 				&in_out_gamepad_state->button_frames[button_index],
@@ -651,12 +653,13 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 		update_thumbstick(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY, &in_out_gamepad_state->sticks[_gamepad_stick_left]);
 		update_thumbstick(xinput_state.Gamepad.sThumbRX, xinput_state.Gamepad.sThumbRY, &in_out_gamepad_state->sticks[_gamepad_stick_right]);
 
-		update_trigger(xinput_state.Gamepad.bLeftTrigger, &in_out_gamepad_state->analog_buttons[_gamepad_analog_button_left_trigger]);
+		update_trigger(xinput_state.Gamepad.bLeftTrigger,  &in_out_gamepad_state->analog_buttons[_gamepad_analog_button_left_trigger]);
 		update_trigger(xinput_state.Gamepad.bRightTrigger, &in_out_gamepad_state->analog_buttons[_gamepad_analog_button_right_trigger]);
 
 		for (long button_index = 0; button_index < NUMBER_OF_GAMEPAD_ANALOG_BUTTONS; button_index++)
 		{
-			bool binary_down = in_out_gamepad_state->analog_buttons[button_index] > in_out_gamepad_state->analog_button_thresholds[button_index];
+			bool const binary_down = in_out_gamepad_state->analog_buttons[button_index] >
+							   in_out_gamepad_state->analog_button_thresholds[button_index];
 
 			update_button(
 				&in_out_gamepad_state->button_frames[button_index],
@@ -672,132 +675,9 @@ bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_mse
 
 		result = true;
 	}
-
-	return result;
-}
-
-bool input_update_gamepad(unsigned long gamepad_index, unsigned long elapsed_msec, gamepad_state_be* in_out_gamepad_state, debug_gamepad_data_be* out_debug_gamepad_data)
-{
-	(void)(out_debug_gamepad_data);
-	assert(in_out_gamepad_state != nullptr);
-
-	bool result = false;
-
-	bool pc_joystick_enabled = REXCVAR_GET(enable_pc_joystick);
-	if (pc_joystick_enabled)
-	{
-		// ------------------------------------------------------------
-		// PC controls (only controller slot 0)
-		// ------------------------------------------------------------
-
-		if (gamepad_index == 0)
-		{
-			const e_input_key_code* key_mapping = game_is_ui_shell()
-				? k_gamepad_ui_shell_key_mapping
-				: k_gamepad_in_game_key_mapping;
-
-			for (long button_index = 0; button_index < NUMBER_OF_GAMEPAD_BUTTONS; button_index++)
-			{
-				e_input_key_code key_code = key_mapping[button_index];
-				bool down = key_code != _key_not_a_key && rawinput_globals.key_down[key_code];
-
-				update_button(
-					&in_out_gamepad_state->button_frames[button_index],
-					&in_out_gamepad_state->button_msec[button_index],
-					down,
-					elapsed_msec);
-			}
-
-			// WASD -> left stick
-			float lx = 0.0f, ly = 0.0f;
-			if (rawinput_globals.key_down[_key_a]) lx -= 1.0f;
-			if (rawinput_globals.key_down[_key_d]) lx += 1.0f;
-			if (rawinput_globals.key_down[_key_w]) ly += 1.0f;
-			if (rawinput_globals.key_down[_key_s]) ly -= 1.0f;
-
-			update_thumbstick(
-				static_cast<short>(lx * k_short_max),
-				static_cast<short>(ly * k_short_max),
-				&in_out_gamepad_state->sticks[_gamepad_stick_left]);
-
-			// Mouse -> right stick
-			const float mouse_sensitivity = static_cast<float>(REXCVAR_GET(pc_joystick_sensitivity));
-
-			float sx = CLAMP(rawinput_globals.mouse_delta[_mouse_delta_x] * mouse_sensitivity, -1.0f, 1.0f);
-			float sy = CLAMP(rawinput_globals.mouse_delta[_mouse_delta_y] * mouse_sensitivity, -1.0f, 1.0f);
-
-			rawinput_globals.mouse_delta[_mouse_delta_x] = 0;
-			rawinput_globals.mouse_delta[_mouse_delta_y] = 0;
-
-			update_thumbstick(
-				static_cast<short>(sx * k_short_max),
-				static_cast<short>(-sy * k_short_max), // Y inverted: screen-down = look-down
-				&in_out_gamepad_state->sticks[_gamepad_stick_right]);
-
-			// Mouse buttons -> triggers
-			in_out_gamepad_state->analog_buttons[_gamepad_analog_button_left_trigger]  = rawinput_globals.mouse_buttons[_mouse_button_right] ? 1.0f : 0.0f;
-			in_out_gamepad_state->analog_buttons[_gamepad_analog_button_right_trigger] = rawinput_globals.mouse_buttons[_mouse_button_left]  ? 1.0f : 0.0f;
-
-			result = true;
-		}
-		else
-		{
-			result = false;
-		}
-	}
 	else
 	{
-		// ------------------------------------------------------------
-		// XInput gamepad
-		// ------------------------------------------------------------
-
-		e_controller_index controller_index = static_cast<e_controller_index>(gamepad_index);
-
-		DWORD xinput_user_index = static_cast<DWORD>(controller_index);
-		XINPUT_STATE xinput_state{};
-
-		if (XInputGetState(xinput_user_index, &xinput_state) == ERROR_SUCCESS)
-		{
-			for (long button_index = FIRST_GAMEPAD_BINARY_BUTTON; button_index < NUMBER_OF_GAMEPAD_BUTTONS; button_index++)
-			{
-				bool binary_down = TEST_MASK(xinput_state.Gamepad.wButtons, button_to_xinput_button_mask[button_index]);
-
-				update_button(
-					&in_out_gamepad_state->button_frames[button_index],
-					&in_out_gamepad_state->button_msec[button_index],
-					binary_down,
-					elapsed_msec);
-			}
-
-			update_thumbstick(xinput_state.Gamepad.sThumbLX, xinput_state.Gamepad.sThumbLY, &in_out_gamepad_state->sticks[_gamepad_stick_left]);
-			update_thumbstick(xinput_state.Gamepad.sThumbRX, xinput_state.Gamepad.sThumbRY, &in_out_gamepad_state->sticks[_gamepad_stick_right]);
-
-			update_trigger(xinput_state.Gamepad.bLeftTrigger, &in_out_gamepad_state->analog_buttons[_gamepad_analog_button_left_trigger]);
-			update_trigger(xinput_state.Gamepad.bRightTrigger, &in_out_gamepad_state->analog_buttons[_gamepad_analog_button_right_trigger]);
-
-			result = true;
-		}
-		else
-		{
-			result = false;
-		}
-	}
-
-	for (long button_index = 0; button_index < NUMBER_OF_GAMEPAD_ANALOG_BUTTONS; button_index++)
-	{
-		bool binary_down = in_out_gamepad_state->analog_buttons[button_index] >
-			in_out_gamepad_state->analog_button_thresholds[button_index];
-
-		update_button(
-			&in_out_gamepad_state->button_frames[button_index],
-			&in_out_gamepad_state->button_msec[button_index],
-			binary_down,
-			elapsed_msec);
-
-		update_threshold(
-			&in_out_gamepad_state->analog_button_thresholds[button_index],
-			binary_down,
-			in_out_gamepad_state->analog_buttons[button_index]);
+		result = false;
 	}
 
 	return result;
@@ -842,11 +722,11 @@ bool input_xinput_available(void)
 
 /* ---------- private code */
 
-static void input_rawinput_process(const RAWINPUT* raw)
+static void input_rawinput_process(RAWINPUT const* raw)
 {
 	if (raw->header.dwType == RIM_TYPEMOUSE)
 	{
-		const RAWMOUSE& m = raw->data.mouse;
+		RAWMOUSE const& m = raw->data.mouse;
 
 		if (!(m.usFlags & MOUSE_MOVE_ABSOLUTE))
 		{
@@ -872,7 +752,7 @@ static void input_rawinput_process(const RAWINPUT* raw)
 	}
 	else if (raw->header.dwType == RIM_TYPEKEYBOARD)
 	{
-		const RAWKEYBOARD& kb = raw->data.keyboard;
+		RAWKEYBOARD const& kb = raw->data.keyboard;
 
 		e_input_key_code key_code = k_vk_to_key_code[kb.VKey];
 		if (key_code != _key_not_a_key)
@@ -888,7 +768,11 @@ static void input_rawinput_poll(void)
 	DWORD foreground_pid = 0;
 	GetWindowThreadProcessId(foreground, &foreground_pid);
 
-	if (foreground_pid == GetCurrentProcessId() && foreground != GetConsoleWindow())
+	ImGuiIO& io = ImGui::GetIO();
+	bool const im_has_render_windows = io.MetricsRenderWindows > 0;
+
+	bool const should_clip = foreground_pid == GetCurrentProcessId() && foreground != GetConsoleWindow();
+	if (should_clip && !im_has_render_windows)
 	{
 		RECT clip = {};
 		clip.left   = (GetSystemMetrics(SM_CXSCREEN) - 100) / 2;
@@ -991,8 +875,9 @@ static void input_update_gamepads(long elapsed_msec)
 	{
 		input_rawinput_poll();
 	}
+	input_globals.rumble_suppressed_flag = pc_joystick_enabled;
 
-	for (e_controller_index controller_index = _controller0; controller_index < k_number_of_controllers; controller_index++)
+	for (e_controller_index controller_index = first_controller(); controller_index != k_no_controller; controller_index = next_controller(controller_index))
 	{
 		gamepad_state_be* state = &input_globals.gamepad_states[controller_index];
 		bool is_valid = input_update_gamepad(static_cast<unsigned long>(controller_index), static_cast<unsigned long>(elapsed_msec), state, nullptr);
@@ -1027,4 +912,80 @@ static void input_update_gamepads_rumble(void)
 	{
 		input_xinput_update_rumble_state(gamepad_index, &input_globals.rumble_states[gamepad_index], suppress_rumble);
 	}
+}
+
+static bool gamepad_state_get(unsigned long gamepad_index, XINPUT_STATE* out_state)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	bool const im_has_render_windows = io.MetricsRenderWindows > 0;
+
+    bool result;
+    if (!REXCVAR_GET(enable_pc_joystick) || im_has_render_windows)
+    {
+    	result = XInputGetState(gamepad_index, out_state) == ERROR_SUCCESS;
+    }
+    else if (gamepad_index == 0)
+    {
+    	e_input_key_code const* key_mapping;
+    	if (game_is_ui_shell())
+    	{
+    		key_mapping = k_gamepad_ui_shell_key_mapping;
+    	}
+    	else
+    	{
+    		key_mapping = k_gamepad_in_game_key_mapping;
+    	}
+
+        for (long button_index = 0; button_index < NUMBER_OF_GAMEPAD_BUTTONS; button_index++)
+        {
+            e_input_key_code key_code = key_mapping[button_index];
+            if (key_code != _key_not_a_key && rawinput_globals.key_down[key_code])
+            {
+            	out_state->Gamepad.wButtons |= button_to_xinput_button_mask[button_index];
+            }
+        }
+
+        real left_x = 0.0f;
+    	real left_y = 0.0f;
+        if (rawinput_globals.key_down[_key_a])
+        {
+	        left_x -= 1.0f;
+        }
+        if (rawinput_globals.key_down[_key_d])
+        {
+	        left_x += 1.0f;
+        }
+        if (rawinput_globals.key_down[_key_w])
+        {
+	        left_y += 1.0f;
+        }
+        if (rawinput_globals.key_down[_key_s])
+        {
+	        left_y -= 1.0f;
+        }
+
+        out_state->Gamepad.sThumbLX = static_cast<SHORT>(left_x * k_short_max);
+        out_state->Gamepad.sThumbLY = static_cast<SHORT>(left_y * k_short_max);
+
+        real const sensitivity = static_cast<real>(REXCVAR_GET(pc_joystick_sensitivity));
+
+        real const sx = CLAMP(rawinput_globals.mouse_delta[_mouse_delta_x] * sensitivity, -1.0f, 1.0f);
+        real const sy = CLAMP(rawinput_globals.mouse_delta[_mouse_delta_y] * sensitivity, -1.0f, 1.0f);
+
+        rawinput_globals.mouse_delta[_mouse_delta_x] = 0;
+        rawinput_globals.mouse_delta[_mouse_delta_y] = 0;
+
+        out_state->Gamepad.sThumbRX = static_cast<SHORT>( sx * k_short_max);
+        out_state->Gamepad.sThumbRY = static_cast<SHORT>(-sy * k_short_max);
+
+        out_state->Gamepad.bLeftTrigger  = rawinput_globals.mouse_buttons[_mouse_button_right] ? 0xFF : 0x00;
+        out_state->Gamepad.bRightTrigger = rawinput_globals.mouse_buttons[_mouse_button_left]  ? 0xFF : 0x00;
+
+    	result = true;
+	}
+	else
+	{
+		result = false;
+	}
+    return result;
 }
