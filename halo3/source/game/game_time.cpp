@@ -51,7 +51,7 @@ void __tls_set_g_game_time_globals_allocator(void* new_address)
 {
 	REX_PPC_INVOKE(__tls_set_g_game_time_globals_allocator, new_address);
 
-	game_time_globals = static_cast<game_time_globals_definition *(new_address);
+	game_time_globals = static_cast<game_time_globals_definition*>(new_address);
 }
 
 bool game_time_get_paused()
