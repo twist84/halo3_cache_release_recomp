@@ -10,6 +10,7 @@
 #include <rex/filesystem/devices/host_path_device.h>
 #include <rex/filesystem/vfs.h>
 #include <rex/graphics/flags.h>
+#include <rex/input/flags.h>
 
 class Halo3CacheReleaseApp : public rex::ReXApp {
  public:
@@ -43,6 +44,7 @@ protected:
 void Halo3CacheReleaseApp::OnPreSetup(rex::RuntimeConfig& config)
 {
 	REXCVAR_SET(gpu_allow_invalid_fetch_constants, true);
+	REXCVAR_SET(input_backend, "xinput");
 	//REXCVAR_SET(fullscreen, true);
 	//REXCVAR_SET(vsync, false);
 	//REXCVAR_SET(resolution_scale, 2);

@@ -76,7 +76,7 @@ void physical_memory_stage_pop(memory_stage stage)
 
 unsigned long _physical_memory_malloc(memory_stage stage, char const* name, unsigned long size, unsigned long flags, char const* file, long line) // void*
 {
-	REX_PPC_INVOKE(_physical_memory_malloc, stage, name, size, flags, file, line);
+	return REX_PPC_INVOKE(_physical_memory_malloc, stage, name, size, flags, file, line);
 }
 
 /* ---------- private code */

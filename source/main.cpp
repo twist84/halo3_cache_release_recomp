@@ -13,9 +13,6 @@ REX_DEFINE_APP(halo3_cache_release, Halo3CacheReleaseApp::Create)
 
 #include "rex_macros.h"
 
-PPC_STUB(rex_saved_film_directory_delete_contents)
-PPC_STUB(rex_autosave_queue_save_current_game_variant_to_queue)
-
 REXCVAR_DEFINE_STRING(username, "User", "Rex/User", "override the users name");
 
 namespace rex::kernel::xam
