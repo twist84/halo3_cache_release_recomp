@@ -141,6 +141,6 @@ _inline t_type const& c_static_array<t_type, k_count>::operator[](long index) co
 	return m_elements[index];
 }
 
-#endif
+#endif // __STATIC_ARRAYS_TEMPLATES__
 
 #endif // __STATIC_ARRAY_H__

@@ -58,6 +58,7 @@ extern bool& disable_main_loop_throttle;
 
 extern unlock_token _internal_halt_render_thread_and_lock_resources(char const* file, long line);
 extern void unlock_resources_and_resume_render_thread(unlock_token token);
+extern void main_loop(void);
 
 // main game
 

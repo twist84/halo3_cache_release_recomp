@@ -25,6 +25,7 @@ enum memory_stage
 
 extern void physical_memory_stage_push(memory_stage stage);
 extern void physical_memory_stage_pop(memory_stage stage);
+extern unsigned long _physical_memory_malloc(memory_stage stage, char const* name, unsigned long size, unsigned long flags, char const* file, long line); // void*
 
 /* ---------- globals */
 

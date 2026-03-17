@@ -2,18 +2,6 @@
 
 ### A recomp of `halo3_cache_release.xex` from `Halo 3 08172.07.03.08.2240.delta (March 8 2007)`
 
-My fork of [rexglue](https://github.com/twist84/rexglue-sdk/tree/on-load-xex-image) is required for the following
- - `OnLoadXexImage`
-
-Follow the usual [wiki](https://github.com/rexglue/rexglue-sdk/wiki/Guide-%E2%80%90-Getting-Started#1-install-the-sdk) instructions for installing the sdk but with the following modifications
-```DIFF
--git clone --recursive https://github.com/rexglue/rexglue-sdk.git
-+git clone -b on-load-xex-image --recursive https://github.com/twist84/rexglue-sdk.git
-cd rexglue-sdk
-cmake --preset win-amd64         # or linux-amd64
-cmake --build out/build/win-amd64 --target install # or out/build/linux-amd64
-```
-
 [2026.02.27 - 03.06.30.01](https://github.com/user-attachments/assets/709b9fac-5f07-4cac-a39e-e565ab8191af)
 
 [2026.02.28 - 01.11.32.01](https://github.com/user-attachments/assets/06694034-80bc-4213-a21a-f31096b69ec7)

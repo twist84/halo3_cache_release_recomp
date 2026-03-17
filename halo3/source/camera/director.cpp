@@ -79,6 +79,6 @@ static void change_debug_director_if_necessary(long user_index)
 	}
 #else
 	// $IMPLEMENT
-	(void)director_mode_override;
+	(void)(director_mode_override);
 #endif
 }

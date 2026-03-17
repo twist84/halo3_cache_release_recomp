@@ -49,6 +49,7 @@ REX_DATA_REFERENCE_DECLARE(0x82845568, s_physical_memory_globals, physical_memor
 // exports
 
 REX_PPC_EXTERN_IMPORT(physical_memory_stage_pop);
+REX_PPC_EXTERN_IMPORT(_physical_memory_malloc);
 
 // hooks
 
@@ -71,6 +72,11 @@ void physical_memory_stage_push(memory_stage stage)
 void physical_memory_stage_pop(memory_stage stage)
 {
 	REX_PPC_INVOKE(physical_memory_stage_pop, stage);
+}
+
+unsigned long _physical_memory_malloc(memory_stage stage, char const* name, unsigned long size, unsigned long flags, char const* file, long line) // void*
+{
+	REX_PPC_INVOKE(_physical_memory_malloc, stage, name, size, flags, file, line);
 }
 
 /* ---------- private code */
