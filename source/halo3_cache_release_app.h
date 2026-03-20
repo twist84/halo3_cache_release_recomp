@@ -31,7 +31,7 @@ protected:
 	// void OnConfigurePaths(rex::PathConfig& paths) override {}
 
 	virtual void OnPreSetup(rex::RuntimeConfig& config) override;
-	virtual void OnLoadXexImage(std::string& xex_image) override; // https://github.com/twist84/rexglue-sdk/tree/on-load-xex-image/
+	virtual void OnLoadXexImage(std::string& xex_image) override;
 	virtual void OnPostSetup() override;
 	virtual void OnConfigurePaths(rex::PathConfig& paths) override;
 };
