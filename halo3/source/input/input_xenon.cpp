@@ -92,8 +92,8 @@ static REX_DATA_REFERENCE_DECLARE(0x828423F0, input_globals_xenon, input_globals
 
 static s_rawinput_state rawinput_globals = {};
 
-REXCVAR_DEFINE_BOOL(enable_pc_joystick, false, "Blam/Runtime", "enable keyboard and mouse support");
-REXCVAR_DEFINE_DOUBLE(pc_joystick_sensitivity, 0.005, "Blam/Runtime", "mouse sensitivity for pc joystick");
+REXCVAR_DEFINE_BOOL(enable_pc_joystick, false, "Blam/Input", "");
+REXCVAR_DEFINE_DOUBLE(pc_joystick_sensitivity, 0.005, "Blam/Input", "");
 
 // real k_trigger_dead_zone_real = 0.025;
 // real k_thumbstick_dead_zone_real = 0.24;

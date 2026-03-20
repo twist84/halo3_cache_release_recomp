@@ -18,7 +18,7 @@ static void change_debug_director_if_necessary(long user_index);
 
 /* ---------- globals */
 
-REXCVAR_DEFINE_INT32(director_mode_override, NONE, "Blam/Runtime", "override the director mode");
+REXCVAR_DEFINE_INT32(director_mode_override, NONE, "Blam/Camera", "");
 
 /* ---------- private variables */
 
