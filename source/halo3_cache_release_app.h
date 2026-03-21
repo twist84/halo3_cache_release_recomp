@@ -7,6 +7,7 @@
 
 #include <rex/rex_app.h>
 
+#include <rex/dbg.h>
 #include <rex/filesystem/devices/host_path_device.h>
 #include <rex/filesystem/vfs.h>
 #include <rex/graphics/flags.h>
@@ -25,15 +26,16 @@ class Halo3CacheReleaseApp : public rex::ReXApp {
 protected:
 	// Override virtual hooks for customization:
 	// void OnPreSetup(rex::RuntimeConfig& config) override {}
+	// void OnLoadXexImage(std::string& xex_image) override {}
 	// void OnPostSetup() override {}
 	// void OnCreateDialogs(rex::ui::ImGuiDrawer* drawer) override {}
 	// void OnShutdown() override {}
 	// void OnConfigurePaths(rex::PathConfig& paths) override {}
 
-	virtual void OnPreSetup(rex::RuntimeConfig& config) override;
-	virtual void OnLoadXexImage(std::string& xex_image) override;
-	virtual void OnPostSetup() override;
-	virtual void OnConfigurePaths(rex::PathConfig& paths) override;
+	void OnPreSetup(rex::RuntimeConfig& config) override;
+	void OnLoadXexImage(std::string& xex_image) override;
+	void OnPostSetup() override;
+	void OnConfigurePaths(rex::PathConfig& paths) override;
 };
 
 // BLAM!
@@ -106,7 +108,7 @@ void Halo3CacheReleaseApp::OnPostSetup()
 
 void Halo3CacheReleaseApp::OnConfigurePaths(rex::PathConfig& paths)
 {
-	if (IsDebuggerPresent() == FALSE)
+	if (!rex::debug::IsDebuggerAttached())
 	{
 		// for user deployments not a developer debugging
 		paths.game_data_root = ".";
