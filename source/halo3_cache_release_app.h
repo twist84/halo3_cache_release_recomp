@@ -60,7 +60,7 @@ void Halo3CacheReleaseApp::OnLoadXexImage(std::string& xex_image)
 void Halo3CacheReleaseApp::OnPostSetup()
 {
 	{
-		c_screen_postprocess::x_settings_internal.m_postprocess = false;
+		c_screen_postprocess::x_settings_internal.m_bloom_source = 0;
 		disable_main_loop_throttle = true;
 	}
 
